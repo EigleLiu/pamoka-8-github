@@ -5,10 +5,12 @@ An interactive web application that uses artificial intelligence to analyze and 
 ## Features
 
 - 📁 Upload images (PNG, JPG, JPEG, GIF, BMP, TIFF)
+- 💬 Ask custom questions about images
 - 🤖 AI-powered image analysis with detailed descriptions
 - 🎨 User-friendly web interface built with Streamlit
 - 🔒 Local AI processing (no data sent to cloud)
-- 🇱🇹 Descriptions in Lithuanian language
+- 🇱🇹 Descriptions and answers in Lithuanian language
+- 💾 Session-based result storage
 
 ## Tech Stack
 
@@ -68,8 +70,17 @@ Navigate to: http://localhost:8501
 
 1. **Upload an image** - Click "Browse files" and select an image
 2. **View the image** - Check that the image loaded correctly
-3. **Analyze** - Click "🔍 Analizuoti paveikslėlį" button
-4. **Get results** - Wait for the AI to provide a detailed description
+3. **Ask a question** (optional) - Enter a specific question about the image
+4. **Analyze** - Click "🔍 Analizuoti paveikslėlį" button
+5. **Get results** - Wait for the AI to provide an answer or description
+
+### 💬 Example Questions:
+- "What is the mood of this image?"
+- "How many people do you see?"
+- "What colors dominate the image?"
+- "What is happening in the picture?"
+- "What objects are visible?"
+- "Where was this photo taken?"
 
 ## Project Structure
 

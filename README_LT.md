@@ -5,10 +5,12 @@
 ## ⚡ Funkcijos
 
 - 📁 Paveikslėlių įkėlimas (PNG, JPG, JPEG, GIF, BMP, TIFF)
+- 💬 Klausimų uždavimas apie paveikslėlį
 - 🤖 Automatinis paveikslėlio analizavimas su AI
 - 🎨 Intuityvi web sąsaja su Streamlit
 - 🔒 Vietinis AI modelis (duomenys neišsiunčiami į debesį)
-- 🇱🇹 Aprašymai lietuvių kalba
+- 🇱🇹 Aprašymai ir atsakymai lietuvių kalba
+- 💾 Rezultatų išsaugojimas sesijos metu
 
 ## 🛠️ Reikalavimai
 
@@ -56,8 +58,17 @@ Programa bus prieinama adresu: http://localhost:8501
 
 1. **Įkelkite paveikslėlį** - spustelėkite "Browse files" ir pasirinkite paveikslėlį
 2. **Peržiūrėkite paveikslėlį** - patikrinkite, ar paveikslėlis įkeltas teisingai
-3. **Analizuokite** - spustelėkite "🔍 Analizuoti paveikslėlį" mygtuką
-4. **Gaukite rezultatus** - palaukite, kol AI pateiks paveikslėlio aprašymą
+3. **Užduokite klausimą** (nebūtina) - įrašykite specifinį klausimą apie paveikslėlį
+4. **Analizuokite** - spustelėkite "🔍 Analizuoti paveikslėlį" mygtuką
+5. **Gaukite rezultatus** - palaukite, kol AI pateiks atsakymą ar aprašymą
+
+### 💬 Klausimų pavyzdžiai:
+- "Kokia yra šio paveikslėlio nuotaika?"
+- "Kiek žmonių matote paveikslėlyje?"
+- "Kokios spalvos dominuoja?"
+- "Kas vyksta paveikslėlyje?"
+- "Kokie objektai matomi?"
+- "Kur buvo daryta nuotrauka?"
 
 ## 🔧 Techniniai duomenys
 

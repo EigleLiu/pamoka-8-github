@@ -13,17 +13,24 @@ def main():
         layout="wide"
     )
     
+    # Inicializuojame session state
+    if 'analysis_result' not in st.session_state:
+        st.session_state.analysis_result = None
+    if 'last_question' not in st.session_state:
+        st.session_state.last_question = None
+    
     st.title("🖼️ Paveikslėlių analizė su dirbtinio intelekto pagalba")
     st.markdown("---")
     
     # Paaiškinimas vartotojui
     st.markdown("""
     ### Kaip naudotis programa:
-    1. Įkelkite paveikslėlį naudodami žemiau esantį mygtuką
-    2. Palaukite, kol dirbtinis intelektas išanalizuos paveikslėlį
-    3. Gaukite detalų paveikslėlio aprašymą
+    1. 📁 Įkelkite paveikslėlį naudodami žemiau esantį mygtuką
+    2. 💬 Užduokite klausimą apie paveikslėlį (nebūtina)
+    3. 🔍 Spustelėkite "Analizuoti paveikslėlį"
+    4. 📋 Gaukite detalų AI atsakymą
     
-    **Pastaba:** Programa naudoja Ollama gemma2:4b modelį vietiniam paveikslėlių analizavimui.
+    **Pastaba:** Programa naudoja Ollama gemma3:4b modelį vietiniam paveikslėlių analizavimui.
     """)
     
     st.markdown("---")
@@ -43,7 +50,7 @@ def main():
             st.subheader("📁 Įkeltas paveikslėlis:")
             # Atvaizduojame paveikslėlį
             image = Image.open(uploaded_file)
-            st.image(image, caption="Įkeltas paveikslėlis", width='stretch')
+            st.image(image, caption="Įkeltas paveikslėlis", width="stretch")
             
             # Parodome paveikslėlio informaciją
             st.info(f"""
@@ -57,11 +64,38 @@ def main():
         with col2:
             st.subheader("🤖 AI analizės rezultatas:")
             
-            # Sukuriame mygtuką analizei
-            if st.button("🔍 Analizuoti paveikslėlį", type="primary"):
-                analyze_image(uploaded_file, image)
+            # Klausimo įvedimo laukas
+            user_question = st.text_area(
+                "💬 Užduokite klausimą apie paveikslėlį (nebūtina):",
+                placeholder="Pvz.: Kokia yra šio paveikslėlio nuotaika? Kiek žmonių matote? Kas vyksta paveikslėlyje?",
+                height=100,
+                help="Jei paliksite tuščią, AI pateiks bendrą paveikslėlio aprašymą"
+            )
+            
+            # Pasirinkimas analizės tipo
+            col2_1, col2_2 = st.columns(2)
+            
+            with col2_1:
+                if st.button("🔍 Analizuoti paveikslėlį", type="primary"):
+                    analyze_image(uploaded_file, image, user_question)
+            
+            with col2_2:
+                if st.button("🆕 Išvalyti rezultatus"):
+                    st.session_state.analysis_result = None
+                    st.session_state.last_question = None
+                    st.rerun()
+            
+            # Rodome ankstesnį rezultatą, jei yra
+            if st.session_state.analysis_result:
+                st.markdown("---")
+                if st.session_state.last_question:
+                    st.success(f"**Atsakymas į klausimą:** *{st.session_state.last_question}*")
+                else:
+                    st.success("**Bendras paveikslėlio aprašymas:**")
+                
+                st.write(st.session_state.analysis_result)
 
-def analyze_image(uploaded_file, image):
+def analyze_image(uploaded_file, image, user_question=""):
     """Analizuoja paveikslėlį naudojant Ollama modelį"""
     
     # Progreso juostos atvaizdavimas
@@ -88,12 +122,18 @@ def analyze_image(uploaded_file, image):
         progress_bar.progress(50)
         status_text.text("🤖 Siunčiama užklausa dirbtinio intelekto modeliui...")
         
+        # Suformuojame prompt'ą pagal vartotojo klausimą
+        if user_question.strip():
+            prompt = f"Atsakyk į šį klausimą apie paveikslėlį: {user_question.strip()}. Atsakyk lietuvių kalba ir būk tikslus."
+        else:
+            prompt = 'Apibūdink šį paveikslėlį išsamiai ir tiksliai. Paminėk, ką matai paveikslėlyje: objektus, žmones, gyvūnus, spalvas, veiklas, aplinką, nuotaiką. Atsakyk lietuvių kalba.'
+        
         # Siunčiame užklausą Ollama modeliui
         response = ollama.chat(
             model='gemma3:4b',
             messages=[{
                 'role': 'user',
-                'content': 'Apibūdink šį paveikslėlį išsamiai ir tiksliai. Paminėk, ką matai paveikslėlyje: objektus, žmones, gyvūnus, spalvas, veiklas, aplinką, nuotaiką. Atsakyk lietuvių kalba.',
+                'content': prompt,
                 'images': [image_b64]
             }],
             options={
@@ -106,13 +146,21 @@ def analyze_image(uploaded_file, image):
         progress_bar.progress(100)
         status_text.text("✅ Analizė baigta!")
         
-        # Atvaizdavome rezultatą
-        st.success("**Paveikslėlio aprašymas:**")
-        st.write(response['message']['content'])
+        # Išsaugome rezultatą session state
+        st.session_state.analysis_result = response['message']['content']
+        st.session_state.last_question = user_question.strip()
         
         # Išvalome progreso indikatorius
         progress_bar.empty()
         status_text.empty()
+        
+        # Atvaizdavome rezultatą
+        if user_question.strip():
+            st.success(f"**Atsakymas į klausimą:** *{user_question.strip()}*")
+        else:
+            st.success("**Bendras paveikslėlio aprašymas:**")
+        
+        st.write(response['message']['content'])
         
     except Exception as e:
         progress_bar.empty()
@@ -156,6 +204,15 @@ def show_sidebar():
     - **Streamlit** - web sąsajai
     - **Ollama** - vietiniam AI modeliui
     - **gemma3:4b** - paveikslėlių analizei
+    
+    ### Klausimų pavyzdžiai
+    - "Kokia yra šio paveikslėlio nuotaika?"
+    - "Kiek žmonių matote paveikslėlyje?"
+    - "Kokios spalvos dominuoja?"
+    - "Kas vyksta paveikslėlyje?"
+    - "Kokie objektai matomi?"
+    - "Kur buvo daryta nuotrauka?"
+    - "Kokia metų laikas?"
     
     ### Reikalavimai
     - Paleistas Ollama serveris
